@@ -5,7 +5,7 @@
 <h1 align="center">inflight</h1>
 
 <p align="center">
-  A maintained continuation of <a href="https://github.com/isaacs/inflight-DEPRECATED-DO-NOT-USE">inflight</a> by <a href="https://github.com/coderevivehq">CodeRevive</a>.
+  A maintained continuation of <a href="https://github.com/npm/inflight">inflight</a> by <a href="https://github.com/coderevivehq">CodeRevive</a>.
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@ New promise-based code should generally use native promise coordination or a mai
 
 This maintained continuation is published by [CodeRevive](https://github.com/coderevivehq). Security patches are our highest priority. We also review bug reports, feature requests, and suggestions from the community.
 
-The project is based on the original [inflight](https://github.com/isaacs/inflight-DEPRECATED-DO-NOT-USE) repository by Isaac Z. Schlueter and its contributors.
+The project is based on the original [inflight](https://github.com/npm/inflight) repository by Isaac Z. Schlueter and its contributors.
 
 ## Quick links
 
@@ -74,6 +74,6 @@ Report security concerns privately through the repository's [Security](https://g
 
 ## Credits & license
 
-This project is a maintained continuation of [isaacs/inflight](https://github.com/isaacs/inflight-DEPRECATED-DO-NOT-USE). Original code and inherited files remain licensed under the upstream [ISC License](LICENSE). CodeRevive-authored changes are licensed under the MIT License in [LICENSE-CODEREVIVE](LICENSE-CODEREVIVE), unless a file states otherwise. Using the combined repository remains subject to all applicable license terms.
+This project is a maintained continuation of [the original inflight repository](https://github.com/npm/inflight). Original code and inherited files remain licensed under the upstream [ISC License](LICENSE). CodeRevive-authored changes are licensed under the MIT License in [LICENSE-CODEREVIVE](LICENSE-CODEREVIVE), unless a file states otherwise. Using the combined repository remains subject to all applicable license terms.
 
 The original copyright notice for Isaac Z. Schlueter is retained in [LICENSE](LICENSE).
