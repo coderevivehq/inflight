@@ -1,0 +1,39 @@
+{
+  "name": "@coderevivehq/inflight",
+  "version": "1.1.0",
+  "description": "Coalesce callback-style async work by key with cancellation and timeouts",
+  "main": "inflight.js",
+  "files": [
+    "inflight.js",
+    "LICENSE-CODEREVIVE"
+  ],
+  "dependencies": {
+    "once": "^1.4.0",
+    "wrappy": "^1.0.2"
+  },
+  "devDependencies": {
+    "tap": "^21.8.0"
+  },
+  "scripts": {
+    "test": "tap test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderevivehq/inflight.git"
+  },
+  "bugs": {
+    "url": "https://github.com/coderevivehq/inflight/issues"
+  },
+  "homepage": "https://github.com/coderevivehq/inflight#readme",
+  "author": "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)",
+  "contributors": [
+    "CodeRevive contributors"
+  ],
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.16"
+  }
+}
