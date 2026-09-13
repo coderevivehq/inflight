@@ -1,0 +1,151 @@
+name: Publish npm package
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+concurrency:
+  group: npm-publish-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'coderevivehq/inflight'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      package_name: ${{ steps.release.outputs.package_name }}
+
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.15.0
+          package-manager-cache: false
+
+      - name: Verify the release
+        id: release
+        shell: bash
+        run: |
+          package_name="$(node --print "require('./package.json').name")"
+          package_version="$(node --print "require('./package.json').version")"
+          release_version="${GITHUB_REF_NAME#v}"
+
+          if [[ "$package_name" != @*/* ]]; then
+            echo "The package must use a public npm scope: $package_name"
+            exit 1
+          fi
+
+          if [ "$package_version" != "$release_version" ]; then
+            echo "Release tag $GITHUB_REF_NAME does not match package version $package_version."
+            exit 1
+          fi
+
+          echo "package_name=$package_name" >> "$GITHUB_OUTPUT"
+
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+
+      - name: Verify dependency signatures
+        run: npm audit signatures
+
+      - name: Build package when configured
+        run: npm run build --if-present
+
+      - name: Run tests
+        run: npm test
+
+      - name: Create package archive without lifecycle scripts
+        shell: bash
+        run: |
+          npm pack --ignore-scripts
+          package_files=( *.tgz )
+
+          if [ "${#package_files[@]}" -ne 1 ] || [ ! -f "${package_files[0]}" ]; then
+            echo "Expected exactly one package archive."
+            exit 1
+          fi
+
+          shasum -a 256 "${package_files[0]}" > package.sha256
+
+      - name: Store package archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: npm-package
+          path: |
+            *.tgz
+            package.sha256
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: npm
+    permissions:
+      actions: read
+      id-token: write
+
+    steps:
+      - name: Set up Node.js and npm
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.15.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Download package archive
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: npm-package
+
+      - name: Verify package archive
+        run: shasum -a 256 --check package.sha256
+
+      - name: Check npm
+        id: npm-version
+        shell: bash
+        run: |
+          package_name="${{ needs.build.outputs.package_name }}"
+          package_version="${GITHUB_REF_NAME#v}"
+
+          if [ -z "$package_name" ]; then
+            echo "The build job did not provide the package name."
+            exit 1
+          fi
+
+          if npm view "$package_name@$package_version" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "$package_name@$package_version is already published."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to npm with provenance
+        if: steps.npm-version.outputs.published != 'true'
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          package_files=( *.tgz )
+
+          if [ "${#package_files[@]}" -ne 1 ] || [ ! -f "${package_files[0]}" ]; then
+            echo "Expected exactly one package archive."
+            exit 1
+          fi
+
+          npm publish "${package_files[0]}" --access public --ignore-scripts --provenance
