@@ -9,6 +9,8 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/@coderevivehq/inflight"><img alt="npm version" src="https://img.shields.io/npm/v/%40coderevivehq%2Finflight?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/@coderevivehq/inflight"><img alt="npm downloads" src="https://img.shields.io/npm/dm/%40coderevivehq%2Finflight?style=flat-square"></a>
   <a href="https://github.com/coderevivehq/inflight/actions/workflows/ci.yml"><img alt="build status" src="https://github.com/coderevivehq/inflight/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="ISC license" src="https://img.shields.io/github/license/coderevivehq/inflight?style=flat-square"></a>
 </p>
